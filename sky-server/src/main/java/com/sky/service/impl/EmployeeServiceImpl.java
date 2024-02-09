@@ -10,6 +10,7 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
@@ -27,6 +28,7 @@ import org.springframework.util.DigestUtils;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -57,12 +59,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //密码比对
         // 对前端传的明文密码进行加密
-        password = "sky" + password.substring(0, password.length() / 2) + "take" + password.substring(password.length() / 2);
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = encryption(password);
 
         if (!password.equals(employee.getPassword())) {
             //密码错误
@@ -92,12 +89,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(StatusConstant.ENABLE);
         //设置默认密码123456
         String password = PasswordConstant.DEFAULT_PASSWORD;
-        password = "sky" + password.substring(0, password.length() / 2) + "take" + password.substring(password.length() / 2);
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = encryption(password);
         employee.setPassword(password);
         //设置创建时间和修改时间
         employee.setCreateTime(LocalDateTime.now());
@@ -107,6 +99,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 加密
+     *
+     * @param password
+     * @return
+     */
+    private String encryption(String password) {
+        password = "sky" + password.substring(0, password.length() / 2) + "take" + password.substring(password.length() / 2);
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        password = DigestUtils.md5DigestAsHex(password.getBytes());
+        return password;
     }
 
     /**
@@ -125,6 +133,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 设置员工状态
+     *
      * @param status
      * @param id
      */
@@ -138,22 +147,54 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.update(employee);
     }
 
+    /**
+     * 通过id查询员工
+     *
+     * @param id
+     * @return
+     */
     @Override
     public Employee getById(Long id) {
-        Employee employee=employeeMapper.getById(id);
+        Employee employee = employeeMapper.getById(id);
         employee.setPassword("****");
         return employee;
     }
 
+    /**
+     * 编辑员工信息
+     *
+     * @param employeeDTO
+     */
     @Override
     public void update(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
-        BeanUtils.copyProperties(employeeDTO,employee);
+        BeanUtils.copyProperties(employeeDTO, employee);
 
         employee.setUpdateTime(LocalDateTime.now());
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.update(employee);
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param passwordEditDTO
+     * @return
+     */
+    @Override
+    public boolean editPassword(PasswordEditDTO passwordEditDTO) {
+        Employee employee = employeeMapper.getById(BaseContext.getCurrentId());
+        String oldPassword = encryption(passwordEditDTO.getOldPassword());
+        if (!employee.getPassword().equals(oldPassword)) {
+            return false;
+        }
+        String newPassword = encryption(passwordEditDTO.getNewPassword());
+        employee.setPassword(newPassword);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.update(employee);
+        return true;
     }
 
 }
