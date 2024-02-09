@@ -1,5 +1,7 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.JwtClaimsConstant;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
@@ -7,12 +9,14 @@ import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.properties.JwtProperties;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import com.sky.utils.JwtUtil;
 import org.springframework.beans.BeanUtils;
@@ -77,17 +81,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     /**
      * 新增员工
+     *
      * @param employeeDTO
      */
     @Override
     public void create(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         //对象属性拷贝
-        BeanUtils.copyProperties(employeeDTO,employee);
+        BeanUtils.copyProperties(employeeDTO, employee);
         //设置状态，默认正常
         employee.setStatus(StatusConstant.ENABLE);
         //设置默认密码123456
-        String password= PasswordConstant.DEFAULT_PASSWORD;
+        String password = PasswordConstant.DEFAULT_PASSWORD;
         password = "sky" + password.substring(0, password.length() / 2) + "take" + password.substring(password.length() / 2);
         password = DigestUtils.md5DigestAsHex(password.getBytes());
         password = DigestUtils.md5DigestAsHex(password.getBytes());
@@ -103,6 +108,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
+    }
+
+    /**
+     * 员工分页查询
+     *
+     * @param employeePageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
+        //开始分页查询
+        PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
+        Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
+        return new PageResult(page.getTotal(), page.getResult());
     }
 
 }
