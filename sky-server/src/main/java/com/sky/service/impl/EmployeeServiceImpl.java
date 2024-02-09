@@ -63,7 +63,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         password = DigestUtils.md5DigestAsHex(password.getBytes());
         password = DigestUtils.md5DigestAsHex(password.getBytes());
         password = DigestUtils.md5DigestAsHex(password.getBytes());
-        System.out.println(password);
 
         if (!password.equals(employee.getPassword())) {
             //密码错误
@@ -122,6 +121,21 @@ public class EmployeeServiceImpl implements EmployeeService {
         PageHelper.startPage(employeePageQueryDTO.getPage(), employeePageQueryDTO.getPageSize());
         Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
+     * 设置员工状态
+     * @param status
+     * @param id
+     */
+    @Override
+    public void setStatus(Integer status, Long id) {
+        Employee employee = new Employee();
+        employee.setStatus(status);
+        employee.setId(id);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.update(employee);
     }
 
 }
