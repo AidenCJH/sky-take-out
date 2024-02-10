@@ -17,6 +17,7 @@ public interface DishMapper {
 
     /**
      * 根据分类id查询菜品数量
+     *
      * @param categoryId
      * @return
      */
@@ -26,6 +27,7 @@ public interface DishMapper {
 
     /**
      * 插入菜品数据
+     *
      * @param dish
      */
     @AutoFill(value = OperationType.INSERT)
@@ -33,6 +35,7 @@ public interface DishMapper {
 
     /**
      * 菜品分页查询
+     *
      * @param dishPageQueryDTO
      * @return
      */
@@ -40,13 +43,22 @@ public interface DishMapper {
 
     /**
      * 根据id查询菜品
+     *
      * @param id
      */
     @Select("select * from dish where id=#{id}")
     Dish getById(Long id);
 
     /**
+     * 根据ids批量查询菜品
+     *
+     * @param ids
+     */
+    List<Dish> getByIds(List<Long> ids);
+
+    /**
      * 根据id删除菜品
+     *
      * @param id
      */
     @Delete("delete from dish where id=#{id}")
@@ -55,14 +67,33 @@ public interface DishMapper {
 
     /**
      * 根据ids批量删除菜品
+     *
      * @param ids
      */
     void deleteByIds(List<Long> ids);
 
     /**
      * 修改菜品
+     *
      * @param dish
      */
     @AutoFill(value = OperationType.UPDATE)
     void update(Dish dish);
+
+    /**
+     * 根据分类ID查询菜品
+     *
+     * @param categoryId
+     * @return
+     */
+    @Select("select * from dish where category_id=#{categoryId}")
+    List<Dish> getByCategoryId(Long categoryId);
+
+    /**
+     * 根据套餐ID查询菜品
+     * @param setmealId
+     * @return
+     */
+    @Select("select d.* from dish d left join setmeal_dish sd on d.id = sd.dish_id where sd.setmeal_id=#{setmealId}")
+    List<Dish> getBySetmealId(Long setmealId);
 }
