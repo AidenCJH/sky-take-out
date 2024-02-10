@@ -6,3 +6,10 @@ sky:
     database: sky_take_out
     username: root
     password: 52ms1.MYSQL
+  servlet:
+    multipart:
+      max-file-size: 2MB
+
+  alioss:
+    endpoint: "oss-cn-heyuan.aliyuncs.com"
+    bucket-name: "sky-take-out-aidenchen"
