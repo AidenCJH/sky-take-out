@@ -19,6 +19,7 @@ import com.sky.mapper.EmployeeMapper;
 import com.sky.properties.JwtProperties;
 import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
+import com.sky.utils.Encryption;
 import com.sky.utils.JwtUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    @Autowired
+    private Encryption encryption;
 
 
     /**
@@ -59,7 +63,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //密码比对
         // 对前端传的明文密码进行加密
-        password = encryption(password);
+        password = encryption.empEncryption(password);
 
         if (!password.equals(employee.getPassword())) {
             //密码错误
@@ -89,33 +93,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setStatus(StatusConstant.ENABLE);
         //设置默认密码123456
         String password = PasswordConstant.DEFAULT_PASSWORD;
-        password = encryption(password);
+        password = encryption.empEncryption(password);
         employee.setPassword(password);
-        //设置创建时间和修改时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        //设置当前记录创建人id和修改人id
-        employee.setCreateUser(BaseContext.getCurrentId());
-        employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
     }
 
-    /**
-     * 加密
-     *
-     * @param password
-     * @return
-     */
-    private String encryption(String password) {
-        password = "sky" + password.substring(0, password.length() / 2) + "take" + password.substring(password.length() / 2);
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        password = DigestUtils.md5DigestAsHex(password.getBytes());
-        return password;
-    }
 
     /**
      * 员工分页查询
@@ -142,8 +125,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = new Employee();
         employee.setStatus(status);
         employee.setId(id);
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.update(employee);
     }
 
@@ -169,10 +150,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     public void update(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
-
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
-
         employeeMapper.update(employee);
     }
 
@@ -185,14 +162,12 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public boolean editPassword(PasswordEditDTO passwordEditDTO) {
         Employee employee = employeeMapper.getById(BaseContext.getCurrentId());
-        String oldPassword = encryption(passwordEditDTO.getOldPassword());
+        String oldPassword = encryption.empEncryption(passwordEditDTO.getOldPassword());
         if (!employee.getPassword().equals(oldPassword)) {
             return false;
         }
-        String newPassword = encryption(passwordEditDTO.getNewPassword());
+        String newPassword = encryption.empEncryption(passwordEditDTO.getNewPassword());
         employee.setPassword(newPassword);
-        employee.setUpdateTime(LocalDateTime.now());
-        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.update(employee);
         return true;
     }
