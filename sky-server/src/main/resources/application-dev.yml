@@ -18,3 +18,6 @@ sky:
   alioss:
     endpoint: "oss-cn-heyuan.aliyuncs.com"
     bucket-name: "sky-take-out-aidenchen"
+  wechat:
+    appid: "wx4f11fef1e9df04e3"
+    secret: "b817f4048b92490cdc2893f13364f3aa"
