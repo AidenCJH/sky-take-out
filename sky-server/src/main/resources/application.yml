@@ -15,6 +15,11 @@ spring:
   servlet:
     multipart:
       max-file-size: ${sky.servlet.multipart.max-file-size}
+  redis:
+    host: ${sky.redis.host}
+    port: ${sky.redis.port}
+    password: ${sky.redis.password}
+    database: ${sky.redis.database}
 
 mybatis:
   #mapper配置文件

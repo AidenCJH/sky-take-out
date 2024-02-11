@@ -9,6 +9,11 @@ sky:
   servlet:
     multipart:
       max-file-size: 2MB
+  redis:
+    host: 47.120.33.1
+    port: 6379
+    password: 52ms1.REDIS
+    database: 9
 
   alioss:
     endpoint: "oss-cn-heyuan.aliyuncs.com"
